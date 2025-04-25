@@ -1,0 +1,28 @@
+# Required fields
+
+# Kubernetes uses YAML Files as input for the creation of Objects, such as Pods, Replicas, Deployments, Services, etc.
+# All of these objects follow a similar structure.
+
+# 4 top level properties:
+# apiVersion - # Version of the kubernetes API we are interacting with
+# kind - Refers to the type of object created
+# metadata - Dictionary of metadata about the object
+# spec - Dictionary of key value definitions that define the resource
+
+# Top Level (Root) - Required fields for each config file
+apiVersion: v1
+kind: Pod # refers to the type of object we are trying to create
+metadata: # Data about the object, form of a dictionary (Key, value)
+  name: myapp-pod
+  labels: # Helps to identify the object, this is a dictionary in the metadata dictionary
+    app: myapp
+    type: front-end
+spec:
+  containers: # List of containers (multiple containers)
+    - name: nginx-container # Dash indicates the first item in the list
+      image: nginx
+
+# Utilize kubectl create -f pod_definition_example.yaml to create the pod
+# Useful commands for interacting with pods:
+#   kubectl get pods - list of pods available
+#   kubectl describe pod myapp-pod - describes details about the pod, such as its definition and relevant events
