@@ -1,0 +1,27 @@
+# Namespaces define separate individual environments where resources can be defined and used
+# E.g., a namespace can exist for a dev environment, a separate one for staging and another for production.
+
+# When connecting to a database in a cluster, you can use this example:
+# mysql.connect("db-service.dev.svc.cluster.local"),
+# - where: cluster.local is the domain
+# - svc - service
+# - dev - namespace
+# - db-service - name of the service itself (e.g., metadata->name)
+
+# utilize the --namespace option to specify a namespace outside the one your currently working in
+# To create a new namespace:
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+
+# Additionally can use kubectl create namespace <namespace name, e.g., "dev">
+
+# Swap to dev namespace
+# kubectl config set-context $(kubectl config current-context) --namespace=dev
+
+# to view pods in all namespaces
+# kubectl get pods --all-namespaces
+
+# To limit resources in a namespace, create a ResourceQuota
