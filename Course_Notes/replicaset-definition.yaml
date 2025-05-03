@@ -37,3 +37,6 @@ spec:
 # Describe Replica Sets - kubectl describe replicaset (metadata->name)
 
 # Delete Replica Sets - kubectl delete replicaset myapp-replicaset (metadata->name)
+
+# How do replicasets relate to deployments ? A Deployment creates and manages Replicasets
+# For example, each time you update a deployment (new image version), it creates a new replicaset and gradually shifts traffic from the old one to the new one in a rolling update
