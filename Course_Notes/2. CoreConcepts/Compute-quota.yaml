@@ -1,3 +1,4 @@
+# This defines the resources (request and limits) quota for a given namespace (dev)
 apiVersion: v1
 kind: ResourceQuota
 metadata:
