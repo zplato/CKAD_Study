@@ -1,0 +1,39 @@
+# How modern
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-replicaset
+  labels:
+    app: myapp
+    type: front-end
+
+spec:
+  template:
+    metadata: # Data about the object, form of a dictionary (Key, value)
+      name: myapp-pod
+      labels: # Helps to identify the object, this is a dictionary in the metadata dictionary
+        app: myapp
+        type: front-end
+    spec:
+      containers: # List of containers (multiple containers)
+        - name: nginx-container # Dash indicates the first item in the list
+          image: nginx
+  replicas: 3
+  selector: # Key Difference in Replication Controller vs Replica-set
+    matchLabels: # Acts as a filter so that the replica set knows which pods to monitor
+      type: front-end # This matches and maps to the label as defined for the pod definition
+
+# How to scale replicas
+
+# 1. kubectl replace -f replicaset-definition.yaml, this effectively replaces the replicaset with an updated one
+# 2. kubectl scale --replicas=6 -f replicaset-definitions.yaml - Shorthand way to scale up to a specific number
+# 3. kubectl scale --replicas=6 replicaset myapp-replicaset
+
+# Note, 2 and 3 don't update the replicaset file
+
+# Get Replica Sets - kubectl get replicaset, This lists all current replicasets in a given namespace
+
+
+# Describe Replica Sets - kubectl describe replicaset (metadata->name)
+
+# Delete Replica Sets - kubectl delete replicaset myapp-replicaset (metadata->name)

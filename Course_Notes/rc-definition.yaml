@@ -1,0 +1,20 @@
+# Replication Controller is deprecated and replaced with replicationset
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: myapp-rc
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata: # Data about the object, form of a dictionary (Key, value)
+      name: myapp-pod
+      labels: # Helps to identify the object, this is a dictionary in the metadata dictionary
+        app: myapp
+        type: front-end
+    spec:
+      containers: # List of containers (multiple containers)
+        - name: nginx-container # Dash indicates the first item in the list
+          image: nginx
+  replicas: 3
