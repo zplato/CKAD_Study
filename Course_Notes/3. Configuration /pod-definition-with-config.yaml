@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod-with-configmap
+  labels:
+    name: my-pod-label
+
+spec:
+  containers:
+    - name: my-pod-container
+      image: nginx
+      ports:
+        - containerPort: 8080
+      # inherit the entire configmap
+      envFrom:
+        - configMapRef:
+            name: app-config # reference config-map.yaml
+      # To inherit individual values from a configmap utilize this format
+      env:
+        - name: APP_COLOR
+          valueFrom:
+            ConfigMapKeyRef:
+              name: webapp-config-map
+              key: APP_COLOR

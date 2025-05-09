@@ -1,0 +1,11 @@
+# 4 necessary fields - apiVersion, kind, metadata and data
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+
+data:
+  # Key Value Data
+  APP_COLOR: blue
+  APP_MODE: prod
