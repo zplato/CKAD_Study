@@ -135,3 +135,52 @@ containers:
         capabilities:
             add: ["MAC_ADMIN"]  
 ```
+
+## Service Accounts
+Two types of accounts in Kubernetes:
+* User - account tied to a specific user 
+* Service - account that is used for automation, not tied to any user 
+
+### Creating a Service Account
+**Imperative** - `kubectl create serviceaccount <svc-account>`
+
+when created it creates the service account object, and then the secret object token. The service account token can be used as an authorization bearer token to the kubernetes api to authenticate in
+
+**Permissions** - Use RBAC to assign permissions to the svc account 
+
+### Default Service Account
+There is a `default` svc account for every namespace in k8s. 
+Whenever a pod is created, the default svc account token is mounted to it automatically
+It gets automounted to `/var/run/secrets/kubernetes.io/serviceaccount` inside the pod
+
+Default service account is very restricted and only has basic permissions
+
+### Service Account Specifics and Useful Commands
+`kubectl get serviceaccount` - get a list of service accounts, secrets and their age
+
+When the service account is created, it automatically creates a token
+token is stored as a secret. 
+
+Based on updates from v1.22 and v1.24 - a token is no longer created when a svc account is created (except Default) and now when a token is created it comes with an expirey
+It is possible to create a non-expiring token
+Tokens are created via - `kubectl create token`
+
+`kubectl describe serviceaccount <svc-account>` - This describes details and meta data about the svc account, including the token
+
+### Add SVC Acc to pods 
+Modify the pod definition to include the ServiceAccount. 
+Cannot be added during runtime, must be added by deleting and recreating the pod
+Deployment will take care of deleting and recreating new pods with new svc account
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+    - name: my-container
+      image: my-image
+  serviceAccountName: my-svc-name
+```
+
