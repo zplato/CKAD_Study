@@ -1,6 +1,82 @@
 # Cheat Sheet for CKAD Exam covering Core Concepts 
 
 ## Pods
+A pod is the smallest deployable unit in kubernetes. 
+A pod is a collection of one or more containers tightly coupled and share resources, like networking and storage.
+
+A basic pod definition is shown below:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+    - name: simple-webapp
+      image: my_image:5000
+      ports:
+        - containerPort: 8080
+      resources:
+        requests:
+          memory: "1Gi"
+          cpu: 1
+        limits:
+          memory: "2Gi"
+          cpu: 2
+```
+
+### Resources 
+Pods have resource specifications shown above as requests and limits.
+* Request: The initial starting point for a pod to run, it requests the specified resources from the node
+* Limit: The pod can continue to up its request as required automatically via the demand of workload on the pod, up to the specified limits.  
+
+Default behavior - if neither requests or limits is set, then it can consume all resources available on the node
+
+#### Limit Ranges and Resource Quotas 
+You can set limit-ranges at the namespace level for pods, for example see `limit-range-cpu.yaml`:
+```yaml
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: cpu-resource-constraint
+spec:
+  limits:
+    - default:
+        cpu: 500m 
+      defaultRequest:
+        cpu: 500m
+      max:
+        cpu: "1"
+      min:
+        cpu: "100m"
+      type: Container 
+```
+Can utilize the same for memory, `limit-range-memory.yaml`. 
+
+A resource quota sets hard limits for CPU and Memory at the namespace level 
+See for example `resource-quota.yaml`:
+
+```yaml
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: my-resource-quota
+spec:
+  hard:
+    requests.cpu: 4
+    requests.memory: 4Gi
+    limits.cpu: 10
+    limits.memory: 10Gi 
+```
+This sets the total requested CPU in the current namespace to 4 and memory to 4Gi. 
+
+
+#### FAQ on Resources 
+* What does `cpu: 2` actually mean? An abstraction of CPU which represents a vCPU
+* What if a Pod has no limits set? It can consume as many resources on the node as it demands. Specifying a limit remedies this problem
+* What happens if a pod tries to exceed CPU limit? The system throttles CPU so it cannot go beyond specified limit
+* What happens if a pod tries to exceed Memory Limit? The pod will exceed and terminate via OOM error (typically 137)
+
 
 ## Deployments, Replication Controller and ReplicaSets 
 
