@@ -292,3 +292,49 @@ Taints and tolerations do not tell a pod to go to a particular node - it just bl
 A Taint is set on the master node which does not allow any pod to be scheduled on the master node
 To see this, run: `kubectl describe node kubemaster | grep Taint`
 
+## Node Selectors & Node Affinity  
+**Node selectors** - can be added to a Pod to specify which pod a node runs on
+
+```yaml
+spec:
+  containers:
+    - name: my-container
+      image: my-image 
+      # ... other container stuff 
+      
+  nodeSelector:
+    size: Large # Node will be labeled with a key value pair of size : Large
+```
+To label nodes, utilize `kubectl label nodes <node-name> <label-key>=<label-value>`
+
+**Node Affinity** - Ensure that pods are hosted on particular nodes, it is similar to selectors but can apply logic and advanced expressions 
+
+```yaml
+spec:
+  containers:
+    - name: my-container
+      # ... other container stuff
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+            - key: size
+              operator: In # Can use the NotIn operator for inverse logic 
+              values:
+              - Large
+              - Medium
+```
+Common operators:
+* In - schedule it on a node In the list 
+* NotIn - Schedule it on a node not in the list 
+* Exists - Schedule it on a node with the label (key=size) 
+
+Node Affinity Types - define the behavior of the scheduler with respect to the node affinity. Common types include:
+* requiredDuringSchedulingIgnoredDuringExecution (available) - During Scheduling, Required that the pod be placed on a node with the given affinity rules 
+* preferredDuringSchedulingIgnoredDuringExecution (available) - During Scheduling, Preferred (prioritized) that the pod be placed on a node with given affinity rules 
+* requiredDuringSchedulingRequiredDuringExecution (planned) - During Scheduling and Execution, it is required that the pod be placed on a node with the given affinity
+
+During execution, means that a change has been made to the running pod and will affect currently running pods. For example if someone removes the label from the node then pods running on that node with the affinity will be evicted if they no longer match.
+
