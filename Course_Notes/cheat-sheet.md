@@ -211,3 +211,34 @@ containers:
         capabilities:
             add: ["MAC_ADMIN"]  
 ```
+
+## Taints and Tolerations
+Taints are applied on the node level.
+Tolerations are applied on pods.
+Taints and Tolerations are used to set restrictions for what pods can be deployed on what nodes.
+
+To apply a taint on a node: `kubectl taint nodes <node-name> key=value:taint-effect`
+  * Example: `kubectl taint nodes node1 app=blue:NoSchedule` 
+  * Example Removing a taint: `kubectl taint nodes node1 app=blue:NoSchedule-` # Notice the - at the end 
+
+Three taint effects:
+* NoSchedule - Means the Pods not tolerant to this taint will not be scheduled
+* PreferNoSchedule - Means that the system will try to avoid placing the pod but not garunteed
+* NoExecute - New pods will not be scheduled on the node and existing pods will be evicted if they don't tolerate the taint
+
+Add the following to spec to tolerate the pod
+```yaml
+  # inside spec
+  spec:
+  containers:
+    <containers-stuff>
+  tolerations:
+    key: "app"
+    operator: "Equal"
+    value: " blue"
+    effect: " NoSchedule"
+```
+Taints and tolerations do not tell a pod to go to a particular node - it just blocks pods from going to a specific node but allows others to go.
+A Taint is set on the master node which does not allow any pod to be scheduled on the master node
+To see this, run: `kubectl describe node kubemaster | grep Taint`
+
