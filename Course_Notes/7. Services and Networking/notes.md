@@ -65,8 +65,28 @@ spec:
 ---
 ## Ingress 
 
-CNAME - Is a record in DNS which maps (sets an alias) of a domain name to another domain name 
-Route53 - a highly available and scalable DNS Service offered by Amazon Web Services
-CoreDNS is the default DNS service in Kubernetes
 
+
+---
+## Networking Fundamentals
+
+Common Networking Fundamentals: 
+* /etc/hosts file - DNS Override file on unix/linux systems 
+* CNAME - Is a record in DNS which maps (sets an alias) of a domain name to another domain name
+* Route53 - a highly available and scalable DNS Service offered by Amazon Web Services
+* CoreDNS is the default DNS service in Kubernetes
+* Proxy Server (Client Side) - Digital Intermediary that acts as a gateway between a users computer and the internet routing traffic and potentially hiding the users IP Address
+* Reverse Proxy (Server Side) - Hides the Server from the client. Does additional Load balancing, SSL Termination and caching. Example (Nginx infront of backend services)
+* L4 Load Balancer - OSI model layer 4 (transport layer), handling TCP and UDP Traffic without inspecting applicaiton level content 
+  * Works at the network level, checking things like source and destination ip, ports. 
+  * Routes traffic via predefined rules / algorithm (round-robin, least-connections, etc)
+  * Doesn't understand protocols such as HTTP, gRPC, or WebSocket, it just forwards packets 
+* L7 Load Balancer - OSI model layer 7 (Application Layer)
+  * Routing Logic - URL Path, Headers, Cookies, Hostname
+  * Protocols - HTTP(s), WebSockets, gRPC
+  * Content-based routing - can route to endpoints /api vs /admin
+  * TLS Termination - Can decrypt and rencrypt https traffic
+  * Performance - flexible and heavier than L4 Load balancer
+  * Commonly L7 is preferred. 
+* 
 
