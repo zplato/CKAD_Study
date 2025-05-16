@@ -44,5 +44,27 @@ Valid Liveness Probes - http endpoint, tcp socket, exec command
 
 Can be configured the exact same way as above, except replace `readinessProbe` with `livenessProbe`
 
+## Container Logging
+`k logs -f <pod-name>` - to stream logs live 
+These logs are specific to the pod.
 
+If there are multiple containers in the pod, then you have to pass the name of the container you want to see
+For multi-container pod - `k logs -f <pod-name> <container-name>`
+
+## Monitor and Debug Applications 
+Monitor and Measure node level metrics, pod level metrics, services, memory, disk i/o and more
+Lots of Monitoring Tools available - Prometheus, Elastic Stack, DataDog, Dynatrace
+
+There is a builtlin `metrics-server` per kubernetes cluster. The metrics server is an in-memory metric solution. 
+Cannot see historical data (limited). Kubernetes runs an agent on each node, known as the `kubelet`, which is responsible 
+for receiving instructions from the K8 API master server and running pods on the nodes.
+cAdvisor - is a subcomponent of a kubelet which is responsible for retrieving metrics from the pods and aggregating them up to the metrics server
+
+To enable the metrics-server, use:
+* minikube - `minikube addons enable metrics-server`
+* All other K8s deployments - `git clone https://github.com/kubernetes-incubator/metrics-serve` and deploy `k create -f deploy/1.8+/`
+
+Viewing Metrics:
+* Node level - `kubectl top node`
+* Pod Level - `kubectl top pod` 
 
