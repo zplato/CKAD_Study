@@ -63,6 +63,7 @@ There are 4 types of deployment strategies:
    6. Strategy is best implemented with service mesh such as Istio 
    7. Without Istio, we can swap deployments with Selectors->Labels to implement a blue-green update strategy
       8. Labels are swapped on the service, which will update to point from the blue to green. 
+         9. Single Service Swapped from app-blue.yaml (app-blue label) and app-green.yaml (app-green label)
 4. Canary - 
 
 In the case of a single pod with rolling update:
