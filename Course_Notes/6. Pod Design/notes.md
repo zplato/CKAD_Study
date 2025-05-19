@@ -78,3 +78,59 @@ In the case of a single pod with rolling update:
 
 If you deploy with a bad deployment, then it will attempt to take down the first pod in the replicaset, Available=Desired=1. 
 
+## Jobs in Kubernetes
+A job is a workload meant to live for a short period of time. 
+In Kubernetes, a job is a meant to run a set of pods for a period of time to perform a given task to completion. 
+A Job can be defined as follows:
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: math-add-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: math-add
+          image: ubuntu
+          command: ['expr', '3', '*', '2']
+      restartPolicy: Never 
+  backoffLimit: 4
+```
+
+
+
+Useful Commands and Args:
+* `k create job <my-job> --image=<my-image>` - can also add `--` and an executable command at the end 
+* `k get jobs` - to view the job data 
+* `k logs <pod-name>` - to see the pod data
+* Under `spec`, you can add `completions: 3` to force the job to get at least 3 completions before its finished
+* Only a RestartPolicy equal to `Never` or `OnFailure` is allowed.
+* `backoffLimit` is defined on the job to specify how many failures can occur before the job is stopped. 
+* `parallelism` determines how many of the jobs to run in parallel
+
+---
+
+## CronJobs in Kubernetes 
+Schedule and run jobs periodically with a Cronjob.
+
+```yaml
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:            
+    name: reporting-cron-job
+spec:               # Spec section for cronjob 
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:           # Spec copied from the job 
+      completions: 3
+      parallelism: 3
+      template:
+        spec:       # Spec of the pod 
+          containers:
+            - name: reporting-tool
+              image: reporting-tool
+          restartPolicy: Never 
+      backoffLimit: 4
+```
