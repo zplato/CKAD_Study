@@ -64,6 +64,15 @@ spec:
 
 ---
 ## Ingress 
+Ingress helps users access your application via an externally accessible URL that we can configure to route traffic to different services and 
+at the same time can implement security on your cluster with ssl. 
+
+Ingress is configured with two basic building blocks:
+* Ingress Controller - A controller is synonymous to a deployed reverse proxy (nginx, istio, gcp)
+  * Not deployed by default 
+  * Defined as a deployment file with some special configs 
+  * Common way to Fetch and Deploy an Ingress controller `helm install ingress-nginx ingress-nginx/ingress-nginx` and `k apply -f <manifest file>`
+* Ingress Resources - is the configuration that the controller acts upon. Similar YAML files. 
 
 
 
