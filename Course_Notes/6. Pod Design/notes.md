@@ -53,10 +53,17 @@ This helps us keep track of the changes made to our deployment and helps us roll
 * Rollout History - `k rollout history deployment/<my-deployment>` which will show you the revision history of the deployment 
 * Rollback to Prev Revision - `k rollout undo deployment/myapp-deployment` which will rollback to the prev. revision
 
-There are 2 types of deployment strategies:
+There are 4 types of deployment strategies:
 1. Recreate strategy (Destroy and Recreate) - destroy all 5 running instances and deploy 5 new ones. 
    1. Causes downtime
-2. Rolling Update (default) - take pods down one by one and replace them with an updated version. Creates no downtime 
+2. Rolling Update (default) - take pods down one by one and replace them with an updated version. Creates no downtime
+3. Blue Green - Old Version (Blue), New Version (Green)
+   4. Deploy to an Alt (Prod2 Environment) and switch traffic from old to new once all tests are passed in new
+   5. Not Specified in the deployment, but implemented in a different way 
+   6. Strategy is best implemented with service mesh such as Istio 
+   7. Without Istio, we can swap deployments with Selectors->Labels to implement a blue-green update strategy
+      8. Labels are swapped on the service, which will update to point from the blue to green. 
+4. Canary - 
 
 In the case of a single pod with rolling update:
 1. New pod is created 
