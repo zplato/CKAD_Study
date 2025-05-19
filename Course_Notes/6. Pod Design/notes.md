@@ -54,17 +54,22 @@ This helps us keep track of the changes made to our deployment and helps us roll
 * Rollback to Prev Revision - `k rollout undo deployment/myapp-deployment` which will rollback to the prev. revision
 
 There are 4 types of deployment strategies:
-1. Recreate strategy (Destroy and Recreate) - destroy all 5 running instances and deploy 5 new ones. 
+1. **Recreate Strategy (Destroy and Recreate)** - destroy all 5 running instances and deploy 5 new ones. 
    1. Causes downtime
-2. Rolling Update (default) - take pods down one by one and replace them with an updated version. Creates no downtime
-3. Blue Green - Old Version (Blue), New Version (Green)
+2. **Rolling Update (default)** - take pods down one by one and replace them with an updated version. Creates no downtime
+3. **Blue Green** - Old Version (Blue), New Version (Green)
    4. Deploy to an Alt (Prod2 Environment) and switch traffic from old to new once all tests are passed in new
    5. Not Specified in the deployment, but implemented in a different way 
    6. Strategy is best implemented with service mesh such as Istio 
    7. Without Istio, we can swap deployments with Selectors->Labels to implement a blue-green update strategy
       8. Labels are swapped on the service, which will update to point from the blue to green. 
          9. Single Service Swapped from app-blue.yaml (app-blue label) and app-green.yaml (app-green label)
-4. Canary - 
+4. **Canary** - Route a small percentage of traffic top the new deployment. Run tests and if everything looks good, then we upgrade the original deployment with a newer version of the upgrade. 
+   5. Primary Deployment - Has its own service to route traffic with label set on the pods
+   6. Second Deployment - Canary, has a common label between primary and and secondary. 
+      7. To make the secondary deployment smaller, then create a smaller amount of pods on the secondary deployment
+      8. Have limited amount of control over the amount of traffic to each pod
+         9. Istio solves this problem and will allow you define traffic routing percentages 
 
 In the case of a single pod with rolling update:
 1. New pod is created 
