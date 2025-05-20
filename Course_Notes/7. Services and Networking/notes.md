@@ -107,6 +107,66 @@ spec:
 ```
 
 ---
+
+## Network Policies 
+Each Node has an IP Address, as well as each pod and service. 
+Each Pod should be able to communicate with eachother without having to configure any additional settings, such as routes
+All Pods are in a virtual private network that spans across the nodes in a cluster. 
+Kubernetes is by default configured to "all allow" rule, which allows all traffic between pods
+
+A **Network Policy** is another object in the k8s namespace that gets linked to one or more pods, which defines policies that match specified rules.
+We utilize Labels and Selectors to link the network policy to a Pod. 
+Two policy types:
+* Ingress - Allow Traffic into the Pod  
+  * from:
+    * podSelector - Allows ingress traffic from Pod 
+    * namespaceSelector - Filters on namespace to allow traffic from a specific namespace 
+    * ipBlock - Filters on IP to allow traffic from a specific IP
+* Egress -  Allow Traffic from the Pod 
+  * to:
+    * podSelector - Allows egress traffic from my pod to this pod  
+    * namespaceSelector - Filters on namespace to allow traffic from a specific namespace 
+    * ipBlock - Filters on IP to allow traffic from my pod to a specific IP 
+
+A single NetworkPolicy can have both Ingress or Egress Types
+
+Whatever is specified in the NetworkPolicy applied to the pod will be allowed, all else won't be.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-policy
+spec:
+  podSelector:
+    matchLabels:
+      role: db      # Label specified on the db pod - so that it applies this policy to that pod
+  policyTypes:
+  - Ingress       # Only Ingress Traffic is Isolated and Egress Traffic is unaffected
+  - Egress
+  ingress: 
+  - from: 
+    - podSelector: 
+        matchLabels:
+          name: api-pod  # Allow traffic from pods that have label api-pod
+      namespaceSelector:
+        matchLabels:
+          name: prod 
+    - ipBlock:
+        cidr: 192.168.5.10/32
+    ports:
+    - protocol: TCP
+      port: 3306         # Traffic allowed on Port 3306 
+  egress:
+    - to:
+        - ipBlock: 
+            cidr: 192.168.5.10/32
+      ports:
+        - protocol: TCP
+          port: 80
+```
+
+---
 ## Networking Fundamentals
 
 Common Networking Fundamentals: 
