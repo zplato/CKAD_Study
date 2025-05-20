@@ -95,6 +95,15 @@ spec:
             backend:
               serviceName: watch-service
               servicePort: 80
+
+# To split by Hostname utilize 2 rules
+    rules:
+      - host: x.com
+        http:
+          paths: # rest of above
+      - host: y.com
+        http:
+          paths: # rest of above 
 ```
 
 ---
