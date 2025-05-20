@@ -57,24 +57,45 @@ spec:
     type: backend 
 ```
 
-
 ** Useful Service Commands** 
 `k create -f service-definition.yaml`
 `k get services`
 
 ---
 ## Ingress 
-Ingress helps users access your application via an externally accessible URL that we can configure to route traffic to different services and 
-at the same time can implement security on your cluster with ssl. 
+Ingress helps users access your application via a single externally accessible URL that we can configure to route traffic to different services and 
+at the same time can implement security on your cluster with ssl. Think of ingress as a layer 7 load balancer builtin to the kubernetes cluster configured using native k8s primitives
 
 Ingress is configured with two basic building blocks:
-* Ingress Controller - A controller is synonymous to a deployed reverse proxy (nginx, istio, gcp)
+* **Ingress Controller** - A controller is synonymous to a deployed reverse proxy (nginx, istio, gcp)
   * Not deployed by default 
   * Defined as a deployment file with some special configs 
   * Common way to Fetch and Deploy an Ingress controller `helm install ingress-nginx ingress-nginx/ingress-nginx` and `k apply -f <manifest file>`
-* Ingress Resources - is the configuration that the controller acts upon. Similar YAML files. 
+  * To deploy an ingress controller, you need a Deployment file (nginx), a service, a configmap and a service account for authorization
+* **Ingress Resources** - is the configuration (rules) that the controller acts upon. Similar YAML files. 
+  * Example Rules - Route traffic to X and Y applications based on the URL (endpoint or domain name)
+  * Within each rule we can determine where to route the traffic via URL
+* **Ingress-service** (either nodePort or load balancer) - one time configuration to expose the ingress to the world
 
-
+See example Ingress Resource 
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-wear
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /wear
+            backend:
+              serviceName: wear-service
+              servicePort: 80
+          - path: /watch
+            backend:
+              serviceName: watch-service
+              servicePort: 80
+```
 
 ---
 ## Networking Fundamentals
@@ -85,8 +106,8 @@ Common Networking Fundamentals:
 * Route53 - a highly available and scalable DNS Service offered by Amazon Web Services
 * CoreDNS is the default DNS service in Kubernetes
 * Proxy Server (Client Side) - Digital Intermediary that acts as a gateway between a users computer and the internet routing traffic and potentially hiding the users IP Address
-* Reverse Proxy (Server Side) - Hides the Server from the client. Does additional Load balancing, SSL Termination and caching. Example (Nginx infront of backend services)
-* L4 Load Balancer - OSI model layer 4 (transport layer), handling TCP and UDP Traffic without inspecting applicaiton level content 
+* Reverse Proxy (Server Side) - Hides the Server from the client. Does additional Load balancing, SSL Termination and caching. Example (Nginx in front of backend services)
+* L4 Load Balancer - OSI model layer 4 (transport layer), handling TCP and UDP Traffic without inspecting application level content 
   * Works at the network level, checking things like source and destination ip, ports. 
   * Routes traffic via predefined rules / algorithm (round-robin, least-connections, etc)
   * Doesn't understand protocols such as HTTP, gRPC, or WebSocket, it just forwards packets 
