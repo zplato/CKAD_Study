@@ -93,8 +93,11 @@ spec:
               servicePort: 80
           - path: /watch
             backend:
-              serviceName: watch-service
-              servicePort: 80
+              service:
+                name: wear-service
+                port:
+                  number: 80
+                
 
 # To split by Hostname utilize 2 rules
     rules:
@@ -106,6 +109,9 @@ spec:
           paths: # rest of above 
 ```
 
+**Imperative Cmd to create ingress resource**
+`kubectl create ingress <ingress-name> --rule="host/path=service:port"`
+Example - kubectl create ingress ingress-test --rule="wear.my-online-store.com/wear*=wear-service:80"
 ---
 
 ## Network Policies 
