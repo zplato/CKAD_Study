@@ -1,0 +1,69 @@
+# 9. Security 
+Focusing on Kubernetes based security 
+`kube-api` server is important to protect as it gives API access to interface with kubernetes.
+Need to answer two questions:
+* Who can access the server?
+  * Authentication Mechanisms 
+    * Static Files that contain
+      * User ID's and Passwords
+      * User ID's and Tokens
+      * Certificates 
+      * External Authentication Providers like LDAP
+      * For Machines - Service Accounts 
+* What can they do?
+  * Role Based Access Controls (RBAC)
+  * Attribute Based Access Controls (ABAC)
+  * Node Authorization 
+  * Webhook Mode
+
+## Authentication 
+THere are 4 general groups of users: Admins, Developers, Application End Users and Bots 
+Kubernetes does not manage user accounts natively. You cannot create users or view the lists of users (other than serviceaccounts)
+All user access is managed through the api-server. The api-server authenticates the request. 
+THe kube-apiserver has different authentication methods:
+* static password file
+  * Contains a list of Passwords, Username and UserID. Example file: `user-details.csv`
+* static token file - same as static password file but except a password its a token 
+* certificates
+* 3rd party certification protocols (LDAP for example)
+
+## Kubeconfig 
+The `kubeconfig` file contains authentication details for you to authenticate with the kube-apiserver.
+The details include: server, client-key, client-certificate, and certificate-authority 
+
+By Default, the kubectl tool looks for a file under $HOME/.kube/config 
+
+Config file has 3 sections:
+* Clusters
+  * Different Clusters you have access to (Prod, Test, Dev)
+* Contexts
+  * Contexts define which user account will access which cluster 
+* Users 
+  * User accounts defined that you have access to (existing users) 
+
+```yaml
+apiVersion: v1
+kind: Config
+
+current-context: dev-user@google # user@cluster 
+
+clusters:
+  - name: my-kube-playground
+    cluster:
+      certificate-authority: ca.crt 
+      server: https://my-kube-playground:6443
+contexts:
+  - name: my-kube-admin@my-kube-playground
+    context:
+      cluster: my-kube-playground
+      user: my-kube-admin 
+users: 
+  - name: my-kube-admin
+    user:
+      client-certificate: admin.crt
+      client-key: admin.key
+```
+
+Userful commands:
+* View Config - `kubectl config view`
+* Change Curr Context - `k config use-context <user>@<cluster>`
