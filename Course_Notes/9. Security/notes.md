@@ -67,3 +67,17 @@ users:
 Userful commands:
 * View Config - `kubectl config view`
 * Change Curr Context - `k config use-context <user>@<cluster>`
+
+## API Groups
+You can access the kube-master directly from the url: https://kube-master:6443 and pass a `/version` to see a json of the version.
+Additionally, you interface with the api through `/api` and to get the list of pods in json you would use `/api/v1/pods`
+There are other groups too:
+* /metrics
+* /healthz
+* /apis - named apis. It has groups under it for apps and extensions. 
+* /logs 
+
+/api is the core group where all fundamental api endpoints are, such as nodes, pods, services, etc 
+
+Under apis/apps/v1/deployments, where deployments is a resource, there is a list of actions you can invoke through the api on that resource
+such as: list, get, create, delete, update, watch - these are known as verbs 
