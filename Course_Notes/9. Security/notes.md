@@ -101,4 +101,51 @@ There are 6 general authorization methods:
 * AlwaysDeny - Deny all requests 
 
 The mode is set using the --authorization-mode="" option on the kube-apiserver 
-You can have multiple modes at the same time. The order specified is the order that the request is authenticated in. 
+You can have multiple modes at the same time. The order specified is the order that the request is authenticated in.
+
+## Role Based Access Control (RBAC)
+This is the most common way to manage Authorization in K8s. To use RBAC, we create a role definition file and assign the appropriate authorizations rules.
+Rules have 3 sections:
+* apiGroups - # For core group, we leave the apiGroups blank, else we can specify which specific group we are giving permissions to 
+* resources - K8s resources, such as pods, ConfigMaps, StatefulSets, etc 
+* verbs - What actions can they take on the resource. 
+
+```yaml
+# developer-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: developer
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["list", "get", "create", "update", "delete"]
+    
+  - apiGroups: [""]
+    resources: ["ConfigMap"]
+    verbs: ["create"]
+```
+
+To link the user to the role, we create another object called RoleBinding
+
+```yaml
+#devuser-developer-binding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: devuser-developer-binding
+subjects:                                 # User Details
+  - kind: User
+    name: dev-user
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: developer
+  apiGroup: rbac.authorization.k8s.io 
+```
+**Useful Commands**: 
+* To create the role - `k create -f developer-role.yaml`
+* To view roles - `k get roles`
+* To view rolebindings - `k get rolebindings`
+* To describe the role/rolebindings - `k describe role/rolebindings <name>`
+* To check your own auth - `k auth can-i <do something>` for example, `k auth can-i create deployments`

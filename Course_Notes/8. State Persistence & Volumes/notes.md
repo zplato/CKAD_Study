@@ -99,3 +99,105 @@ This still creates a PV, but you don't have to manually create it. Kubernetes th
 
 You can create different classes of storage with 'tiered' replication-type. Silver, Gold and Platinum for example. Which has None, or regional replication for the persistent volume
 
+---
+
+## Stateful Sets 
+
+What is a Stateful Set? 
+Similar to deployments for replicasets - scale up, scale down, perform rolling updates and rollbacks. 
+Pods are created in a sequential order (unlike replicasets) - to help ensure Master Pod is deployed first and then slaves
+Stateful Sets assign a number to each pod, starting at 0 and incrementing ++1 for each pod. 
+Names assigned are not random. Naming starts with: `<stateful-set-name>-0` and increments ++1 for each pod in the set. Master pod will always be 0. 
+
+
+Why Stateful Sets ? 
+Typically used for things like a Database to maintain state of the database master and slave pods. 
+Also, Deployment order matters, where Master -> Slave 1 -> Slave 2. etc
+Need to differentiate These pods from Master to Slave. Need a way to identify the Master, with a static hostname. 
+
+To create a stateful set, its created very similar to a Deployment, except you change the kind, to `Stateful Set`
+
+```yaml
+apiVersion: v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+
+spec:
+  template:
+    metadata:
+      labels:
+        app: mysql    # Pod name that matches the stateful set name 
+    spec:
+      containers:
+        - name: mysql
+          image: mysql
+      replicas: 3
+      selector:
+        matchLabels: 
+          app: mysql          # Links the Pod to the Stateful Set 
+
+      serviceName: mysql-h    # headless service is required for a stateful set which is a stable, unique network identifier
+      podManagementPolicy: Parallel # This overrides the default to bring the pods up in parallel
+```
+---
+
+## Headless Service
+
+In Master/Slave Topology:
+* reads - can be processed by master or slave
+* writes - must be processed by master 
+
+A headless service, is created like a normal service, but it does not have an IP of its own, and it does not perform any load balancing
+All it does is create a DNS Record in the form of: podname.headless-servicename.namespace.svc.cluster-domain
+
+So for example to point to the master node in the mysql stateful-set: `mysql-0.mysql-h.default.svc.cluster.local`
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-h
+spec:
+  ports:
+    - port: 3306
+      selector:
+        app: mysql
+  ClusterIP: None   # This is what makes it a headless service
+```
+
+Then under spec, for a StatefulSet:
+```yaml
+spec:
+  serviceName: mysql-h # Must specify the service name explicitly 
+  containers:
+    <container config>
+```
+
+### Storage in Stateful Sets 
+If you were to add volumes, to the spec section and specify the PVC, then all pods in the stateful set would have access to that volume. 
+
+However, if you want each instance to have its own storage, for example:
+If you had a distributed database, where each instance of the SS had its own database with replicated data. 
+Each Pod then needs a PVC for itself, and each PVC is bound to a PV. So a PV->PVC would need to be provisioned for each pod in the SS. 
+This can be done with a **Volume Claim Template**. 
+
+Within the spec section of the SS Define like so:
+
+```yaml
+spec: # this is the top level SS spec
+  volumeClaimTemplates:
+  - metadata:
+      name: data-volume
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: google-storage # Provisioned through a Storage Class 
+      resources: 
+        requests:
+          storage: 500Mi
+```
+
+If a Pod were to crash and get redeployed, then it will bind back to the same PVC via how the controller handles a stateful set
