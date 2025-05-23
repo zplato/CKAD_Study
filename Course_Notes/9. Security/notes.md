@@ -81,3 +81,24 @@ There are other groups too:
 
 Under apis/apps/v1/deployments, where deployments is a resource, there is a list of actions you can invoke through the api on that resource
 such as: list, get, create, delete, update, watch - these are known as verbs 
+
+## Authorization 
+Authorization defines "What can they do?" after they gain access.
+We want to give the restrict access to the minimum required authorization to those who need it.
+
+There are 6 general authorization methods:
+* Node
+  * Kubelet reports to the API server with information about the node, such as its status. 
+  * These requests for kubernetes are handled by a special authorizer known as the node authorizer.
+* Attribute Based (ABAC)
+  * Where you associate a user or a group of users with specific access 
+  * Is defined in JSON Format and its passed into the api server 
+* Role Based (RBAC)
+  * Instead of associated users or groups of users, we define a role with a set of permissions, and we associate the right people to that role 
+  * Going forward, whenever a change needs to be made then we modify the role, and it reflects on all developers immediately 
+* Webhook - Utilized for 3rd party tools that handle permissions, such as "Open Policy Agent"
+* AlwaysAllow - Allow all requests (default) 
+* AlwaysDeny - Deny all requests 
+
+The mode is set using the --authorization-mode="" option on the kube-apiserver 
+You can have multiple modes at the same time. The order specified is the order that the request is authenticated in. 
