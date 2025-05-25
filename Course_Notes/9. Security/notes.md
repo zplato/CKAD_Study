@@ -193,7 +193,7 @@ An Admission controller comes in, after authentication and Authorization, where 
 **AdmissionsControllers that come builtin**: AlwaysPullImages, DefaultStorageClass, EventRageLimit, NamespaceExists, etc. 
 There are some AdmissionsControllers that come enabled by default and others are not
 
-To view enabled Admission Controllers: `kube-apiserver -h | grep enable-admission-plugins`
+To view enabled Admission Controllers: `kube-apiserver -h | grep enable-admission-plugins` or `ps -ef | grep kube-apiserver | grep admission-plugins`
 
 For example, lets say someone runs: `k run nginx --image nginx --namespace blue`
 The NamespaceExists admission controller would check to see if blue is a valid namespace, if not it would return `Error from server (not found): namespace 'blue' not found`
