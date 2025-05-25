@@ -149,3 +149,54 @@ roleRef:
 * To view rolebindings - `k get rolebindings`
 * To describe the role/rolebindings - `k describe role/rolebindings <name>`
 * To check your own auth - `k auth can-i <do something>` for example, `k auth can-i create deployments`
+
+Roles and Rolebindings are namespace based, if you don't specify a namespace, then they are created in the default namespace
+Cluster Roles are cluster wide / cluster scoped and not a part of a particular namespace
+
+**Cluster Scoped resources include**: Nodes, PV, clusterroles, clusterrolebindings, certificatesigningrequests, namespaces
+**Namespace Scoped resources**: pods, replicasets, deployments, jobs, services, secrets, roles, rolebindings, PVC, configmap
+You can create a cluster role for namespaces as well, the user will have access to the resources across all namespaces
+
+Create Cluster Role: cluster-admin-role.yaml
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cluster-administrator
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["list", "get", "create", "delete"]
+```
+
+cluster-admin-role-binding.yaml
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cluster-admin-role-binding
+subjects:
+  - kind: User
+    name: Zach # This is what links to the user 
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cluster-administrator # This is what links to the ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+```
+## Admission Controller 
+Everytime we send a request, the request goes to the apiserver. When the request hits the apiserver, it goes through an authentication process, it goes through certificates. 
+If the request was sent through kubectl, then the kubeconfig file has the certificates configured and the authentication process is responsible for authenticating that request. 
+Then, once authenticated, the request goes through an authorization process, where we utilize something like RBAC to validate the user making the request has authorization to do so. 
+What if you want to fine tune those authorization requests, such as blocking a particular image registry. 
+An Admission controller comes in, after authentication and Authorization, where it helps us implement more fine tuned security measures. 
+**AdmissionsControllers that come builtin**: AlwaysPullImages, DefaultStorageClass, EventRageLimit, NamespaceExists, etc. 
+There are some AdmissionsControllers that come enabled by default and others are not
+
+To view enabled Admission Controllers: `kube-apiserver -h | grep enable-admission-plugins`
+
+For example, lets say someone runs: `k run nginx --image nginx --namespace blue`
+The NamespaceExists admission controller would check to see if blue is a valid namespace, if not it would return `Error from server (not found): namespace 'blue' not found`
+
+To Enable an Admission Controller, you need to edit the kube-apiserver process and on the flag `enable-admission-plugins` add the one you want to enable
+Can disable with `disable-admissions-plugins` flag 
