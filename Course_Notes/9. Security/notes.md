@@ -200,3 +200,42 @@ The NamespaceExists admission controller would check to see if blue is a valid n
 
 To Enable an Admission Controller, you need to edit the kube-apiserver process and on the flag `enable-admission-plugins` add the one you want to enable
 Can disable with `disable-admissions-plugins` flag 
+
+## ApiVersions 
+Versions used include:
+* v1 - Generally Available (GA)/Stable Version - Has all tests, highly reliable, all users 
+* /v1beta1 - Enabled by Default and has end-to-end tests, for users that are beta testing 
+* /v1alpha1 - Alpha - first developed and merged to the kubernetes release 
+  * Not enabled by default
+
+Even though multiple versions of an api may be available at the same time, only one is used by the "preferred version". 
+You can see the preferred version from `kubectl explain deployment` or `kubectl api-resources` <-- kubectl api-resources is worth memorizing
+
+Do we need to support multiple versions at a time? There is an api deprecation policy 
+
+### ApiDeprecationPolicy
+Rules of API Deprecation Policy:
+1. API Elements may only be removed by incrementing the version of the API Group. 
+2. API objects must be able ot round-trip between API versions in a given release without information loss, except whole REST Resources that do not exist in some versions. 
+There are other rules too but focusing on the above for CKAD
+
+How to change the Preferred/Storage Version - `kubectl convert <old-file> --output-version <new-api>`, for example: `kubectl convert nginx.yaml --output-version apps/v1`
+kubectl convert may not be installed by default
+
+## Custom Resource Definitions 
+Kubernetes stores resource definitions in the /etcd dir (data store)
+A Kubernetes **Controller** is a process that runs in the background and its job is to monitor the active resources that it controls, and also administer change. It's essentially a backend/background service that reacts to changes in the api servers resource objects 
+A kubernetes controller is typically written in golang and is open source. 
+
+Custom Resources also need a Custom Controller. for CKAD we are only focused on Custom Resources and Custom Resource Definitions
+Here is an example: flightticket-custom-definition.yaml
+```yaml
+apiVersion: apiextension.k8s.io/v1
+kind: CustomResourceDefinition
+metadata: 
+  name: flighttickets.flights.com
+spec:
+  scope: Namespaced
+  group: flights.com
+  names: <lots more stuff> 
+```
