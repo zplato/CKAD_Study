@@ -183,6 +183,7 @@ k get all
 k get po -A
 k delete pod mypod
 k explain deployment.spec.template.spec.containers
+alias kn="kubectl config set-context --current --namespace "
 ```
 
 ---
